@@ -22,19 +22,29 @@ def main():
     run = True
     clock = pygame.time.Clock()
     game = Game(WIN)
+    winner = None
 
     while run:
         clock.tick(FPS)
 
         if game.turn == WHITE:
-            value, movement = minimax(game.board, 4, True, WHITE)
-            game.auto_move(movement)
+            value, movement = minimax(game.board, 2, True, WHITE, True)
+            if movement.piece is None or movement.move[0] is None or movement.move[1] is None:
+                winner = RED
+            else:
+                game.auto_move(movement)
 
-        # if game.turn == RED:
-        #     value, movement = minimax(game.board, 3, False, RED)
-        #     game.auto_move(movement)
+        if game.turn == RED:
+            value, movement = minimax(game.board, 2, False, RED, True)
+            if movement.piece is None or movement.move[0] is None or movement.move[1] is None:
+                winner = WHITE
+            else:
+                game.auto_move(movement)
 
-        if game.winner() is not None:
+        if winner is not None:              # win by drowning
+            print(winner)
+            run = False
+        elif game.winner() is not None:     # standard win
             print(game.winner())
             run = False
 
