@@ -10,10 +10,10 @@ class Movement:
         self.skip = skip
 
 
-def AI_playing(board, depth, color, AI_type, ):
+def AI_playing(board, depth, color, AI_type):
     if AI_type == MINIMAX:
         value, move = minimax(board, depth, color)
-        print(value)
+        return value, move
     else:
         print("morre")
         return None
@@ -57,6 +57,8 @@ def minimax(board, depth, color):
                 best_value = max(value, best_value) if color == WHITE else min(value, best_value)
                 if value == best_value:
                     best_move = Movement(move, piece, skip)
+        else:
+            return 0, None
     print("Cheguei! Best value: " + str(best_value) + " Best move: (" +
           str(best_move.move[0]) + ", " + str(best_move.move[1]) + ")")
     return best_value, best_move

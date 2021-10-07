@@ -10,8 +10,8 @@ FPS = 60
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Checkers')
 
-depth_1 = 2
-depth_2 = 2
+depth_1 = 1
+depth_2 = 1
 
 def get_row_col_from_mouse(pos):
     x, y = pos
@@ -34,7 +34,7 @@ def main():
             if movement.piece is None or movement.move[0] is None or movement.move[1] is None:
                 winner = RED
             else:
-                game.auto_move(movement)
+                # game.auto_move(movement)
                 print("Branco jogou")
 
         # if game.turn == RED:

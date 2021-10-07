@@ -73,6 +73,7 @@ class Game:
         return self.selected
 
     def auto_move(self, movement):
+        print("Hora do auto move")
         self.board.move(movement.piece, movement.move[0], movement.move[1])
         if movement.skip:
             self.board.remove(movement.skip)
