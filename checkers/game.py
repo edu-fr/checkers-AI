@@ -1,4 +1,6 @@
 import pygame
+
+from .AI import check_if_possible_moves
 from .constants import RED, WHITE, BLUE, SQUARE_SIZE
 from checkers.board import Board
 
@@ -11,6 +13,12 @@ class Game:
     def update(self):
         self.board.draw(self.win)
         self.draw_valid_moves(self.valid_moves)
+
+        # Show how many kings there are on game
+        # from main import font, WIN
+        # if font is not None:
+        #     text_surface = font.render("WK: " + str(self.board.white_kings) + " RK: " + str(self.board.red_kings), False, BLUE)
+        #     WIN.blit(text_surface, (0, 0))
         pygame.display.update()
 
     def _init(self):
@@ -37,6 +45,9 @@ class Game:
             self.selected = piece
             self.valid_moves = self.board.get_valid_moves(piece)
             return True
+        else:
+            self.selected = None
+            self.valid_moves = None
 
         return False
 
@@ -47,6 +58,7 @@ class Game:
             skipped = self.valid_moves[(row, col)]
             if skipped:
                 self.board.remove(skipped)
+            self.board.register_movement(self.selected, [self.selected.row, self.selected.col], [row, col], skipped)
             self.change_turn()
         else:
             return False
@@ -54,6 +66,8 @@ class Game:
         return True
 
     def draw_valid_moves(self, moves):
+        if moves is None:
+            return None
         for move in moves:
             row, col = move
             pygame.draw.circle(self.win, BLUE,
@@ -73,8 +87,10 @@ class Game:
         return self.selected
 
     def auto_move(self, movement):
-        print("Hora do auto move")
         self.board.move(movement.piece, movement.move[0], movement.move[1])
         if movement.skip:
             self.board.remove(movement.skip)
+        self.board.register_movement(movement.piece, [movement.move[0], movement.move[1]], movement.skip, movement.piece.king)
         self.change_turn()
+
+

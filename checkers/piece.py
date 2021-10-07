@@ -38,3 +38,9 @@ class Piece:
 
     def get_color(self):
         return self.color
+
+    def get_row(self):
+        return self.row
+
+    def get_column(self):
+        return self.col

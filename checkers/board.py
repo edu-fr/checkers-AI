@@ -9,6 +9,8 @@ class Board:
         self.red_left = self.white_left = 12
         self.red_kings = self.white_kings = 0
         self.create_board()
+        self.red_history = []
+        self.white_history = []
 
     def set_board(self, board, red_left, red_kings, white_left, white_kings):
         self.board = board
@@ -30,7 +32,6 @@ class Board:
             if piece.color == WHITE and row == ROWS - 1:
                 piece.make_king()
                 self.white_kings += 1
-
             elif piece.color == RED and row == 0:
                 piece.make_king()
                 self.red_kings += 1
@@ -66,8 +67,12 @@ class Board:
             if piece != 0:
                 if piece.color == RED:
                     self.red_left -= 1
+                    if piece.king:
+                        self.red_kings -= 1
                 else:
                     self.white_left -= 1
+                    if piece.king:
+                        self.white_kings -= 1
 
     def winner(self):
         if self.red_left <= 0:
@@ -157,6 +162,46 @@ class Board:
 
         return moves
 
+    def moves_repeated_with_king(self, color):
+        counter = 0
+        if color == RED:
+            i = len(self.red_history) - 1
+            if i < 2:
+                return 0
+            while i > 1:
+                if self.red_history[i][3] and self.red_history[i] == self.red_history[i - 2]:
+                    counter += 1
+                    i -= 1
+                else:
+                    return counter
+
+                if counter > 19:
+                    return counter
+            return counter
+        else:
+            i = len(self.white_history) - 1
+            if i < 2:
+                return 0
+            while i > 1:
+                if self.white_history[i][3] and self.white_history[i] == self.white_history[i - 2]:
+                    counter += 1
+                    i -= 1
+                else:
+                    return counter
+
+                if counter > 19:
+                    return counter
+            return counter
+
+    def register_movement(self, piece, origin, destination, skips):
+        if piece.color == RED:
+            self.red_history.append([origin, destination, skips, piece.king])
+        else:
+            self.white_history.append([origin, destination, skips, piece.king])
+
+    def check_draw(self):
+        return True if self.moves_repeated_with_king(WHITE) >= 20 or self.moves_repeated_with_king(RED) >= 20 else False
+
     def get_board(self):
         return self.board
 
@@ -171,3 +216,9 @@ class Board:
 
     def get_white_king_left(self):
         return self.white_kings
+
+    def print_history(self):
+        print("RED HISTORY: ")
+        print(self.red_history)
+        print("WHITE HISTORY: ")
+        print(self.white_history)

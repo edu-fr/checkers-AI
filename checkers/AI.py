@@ -1,6 +1,7 @@
 from copy import deepcopy
-from checkers.constants import ROWS, COLS, RED, WHITE, RAND, MINIMAX
 
+from checkers import game
+from checkers.constants import ROWS, COLS, RED, WHITE, RAND, MINIMAX
 
 
 class Movement:
@@ -15,8 +16,15 @@ def AI_playing(board, depth, color, AI_type):
         value, move = minimax(board, depth, color)
         return value, move
     else:
-        print("morre")
         return None
+
+
+def check_if_possible_moves(board, color):
+    available_pieces = get_available_pieces(board, color)
+    for piece in available_pieces:
+        if len(board.get_valid_moves(piece)) > 0:
+            return True
+    return False
 
 
 def get_available_pieces(board, color):
@@ -27,13 +35,13 @@ def get_available_pieces(board, color):
             if current_piece == 0 or current_piece.get_color() != color:
                 continue
             available_pieces.append(current_piece)
-    print("Peças disponiveis: " + str(len(available_pieces)))
     return available_pieces
 
 
 def simulate_move(board, move, piece, skip):
     new_board = deepcopy(board)
-    new_board.move(piece, move[0], move[1])
+    piece_copy = deepcopy(piece)
+    new_board.move(piece_copy, move[0], move[1])
     if skip:
         new_board.remove(skip)
     return new_board
@@ -41,24 +49,21 @@ def simulate_move(board, move, piece, skip):
 
 def minimax(board, depth, color):
     if depth == 0 or board.winner() is not None:
-        value = board.get_white_left() - board.get_red_left()
+        value = ((board.get_white_left() * 2) + (1 * board.white_kings)) \
+                - ((board.get_red_left() * 2) + (1 * board.red_kings))
         return value, None
-
     best_move = None
-
     best_value = float('-inf') if color == WHITE else float('inf')
+
     available_pieces = get_available_pieces(board, color)
     for piece in available_pieces:
         available_moves = board.get_valid_moves(piece)
         if available_moves is not None:
             for move, skip in available_moves.items():
                 simulated_board = simulate_move(board, move, piece, skip)
-                value, current_move = minimax(simulated_board, depth - 1, WHITE if (color == RED) else RED)
+                next_color = WHITE if (color == RED) else RED
+                value, current_move = minimax(simulated_board, depth - 1, next_color)
                 best_value = max(value, best_value) if color == WHITE else min(value, best_value)
                 if value == best_value:
                     best_move = Movement(move, piece, skip)
-        else:
-            return 0, None
-    print("Cheguei! Best value: " + str(best_value) + " Best move: (" +
-          str(best_move.move[0]) + ", " + str(best_move.move[1]) + ")")
     return best_value, best_move
