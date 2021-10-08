@@ -87,10 +87,12 @@ class Game:
         return self.selected
 
     def auto_move(self, movement):
+
+        self.board.register_movement(movement.piece, [movement.piece.row, movement.piece.col],
+                                     [movement.move[0], movement.move[1]], movement.skip)
         self.board.move(movement.piece, movement.move[0], movement.move[1])
         if movement.skip:
             self.board.remove(movement.skip)
-        self.board.register_movement(movement.piece, [movement.move[0], movement.move[1]], movement.skip, movement.piece.king)
         self.change_turn()
 
 

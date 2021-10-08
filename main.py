@@ -1,7 +1,10 @@
+import sys
+import time
+
 import pygame
-from checkers.constants import WIDTH, HEIGHT, SQUARE_SIZE, RED, WHITE, MINIMAX
+from checkers.constants import WIDTH, HEIGHT, SQUARE_SIZE, RED, WHITE, MINIMAX, RAND
 from checkers.game import Game
-from checkers.AI import AI_playing, check_if_possible_moves
+from checkers.AI import ai_playing, check_if_possible_moves
 
 # from minimax.algorithm import minimax
 
@@ -12,9 +15,6 @@ pygame.display.set_caption('Checkers')
 
 pygame.init()
 font = pygame.font.SysFont('Comic Sans MS', 40)
-
-depth_1 = 1
-depth_2 = 4
 
 red_cpu = True
 white_cpu = True
@@ -28,6 +28,16 @@ def get_row_col_from_mouse(pos):
 
 
 def main():
+    # 1: depth1 , 2: depth2, 3: CPU1_alg, 4: CPU2+_alg
+
+    args = sys.argv[1:]
+    args[0] = int(args[0])
+    args[1] = int(args[1])
+    print("Depth1 :" + str(args[0]) + " Depth2: " + str(args[1]) + " Algo1: " + args[2] + " Alg2: " + args[3])
+    args[2] = MINIMAX if args[2] == "MINIMAX" else RAND
+    args[3] = MINIMAX if args[3] == "MINIMAX" else RAND
+
+    start = time.time()
     run = True
     clock = pygame.time.Clock()
     game = Game(WIN)
@@ -46,7 +56,8 @@ def main():
                 winner = RED
             else:
                 if white_cpu:
-                    value, movement = AI_playing(game.board, depth_1, WHITE, MINIMAX)
+                    value, movement = ai_playing(game.board, args[0], WHITE, args[2])
+
                     if movement is not None and movement.piece is not None \
                             and movement.move[0] is not None and movement.move[1] is not None:  # double checking
                         game.auto_move(movement)
@@ -56,7 +67,7 @@ def main():
                 winner = WHITE
             else:
                 if red_cpu:
-                    value, movement = AI_playing(game.board, depth_2, RED, MINIMAX)
+                    value, movement = ai_playing(game.board, args[1], RED, args[3])
                     if movement is not None and movement.piece is not None \
                             and movement.move[0] is not None and movement.move[1] is not None:
                         game.auto_move(movement)
@@ -80,8 +91,10 @@ def main():
 
         game.update()
         # You can use `render` and then blit the text surface ...
-
+    #game.board.print_history()
     pygame.quit()
+    end = time.time()
+    print("TEMPO: " + str(end - start))
 
 
 main()

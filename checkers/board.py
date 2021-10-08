@@ -194,10 +194,16 @@ class Board:
             return counter
 
     def register_movement(self, piece, origin, destination, skips):
+        skipped_list = []
+        for piece in skips:
+            skipped_list.append([piece.row, piece.col])
+        # print("Lista Skippada: ")
+        # print(skipped_list)
+
         if piece.color == RED:
-            self.red_history.append([origin, destination, skips, piece.king])
+            self.red_history.append([origin, destination, skipped_list, piece.king])
         else:
-            self.white_history.append([origin, destination, skips, piece.king])
+            self.white_history.append([origin, destination, skipped_list, piece.king])
 
     def check_draw(self):
         return True if self.moves_repeated_with_king(WHITE) >= 20 or self.moves_repeated_with_king(RED) >= 20 else False
