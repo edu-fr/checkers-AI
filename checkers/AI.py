@@ -56,6 +56,14 @@ def minimax(board, depth, color,alpha,beta):
     if depth == 0 or board.winner() is not None:
         value = ((board.get_white_left() * 1) + (2 * board.white_kings)) \
                 - ((board.get_red_left() * 1) + (2 * board.red_kings))
+        # if win = infinite value
+        if(color == RED):
+            if(board.get_white_left() == 0):
+                value = float('inf')
+        else:
+            if(board.get_red_left() == 0):
+                value = float('-inf')
+        
         return value, None
     best_move = None
     best_value = float('-inf') if color == WHITE else float('inf')
@@ -93,13 +101,22 @@ def minimax(board, depth, color,alpha,beta):
 def rate_movement(movement, board):
 
     simulated_board = simulate_move(board, movement.move, movement.piece, movement.skip)
-    value = ((board.get_white_left() * 1) + (2 * board.white_kings)) \
+    
+    value_before_movement = ((board.get_white_left() * 1) + (2 * board.white_kings)) \
             - ((board.get_red_left() * 1) + (2 * board.red_kings))
 
-    value2 = ((simulated_board.get_white_left() * 1) + (2 * simulated_board.white_kings)) \
+    value_after_movement = ((simulated_board.get_white_left() * 1) + (2 * simulated_board.white_kings)) \
             - ((simulated_board.get_red_left() * 1) + (2 * simulated_board.red_kings))
 
-    return value2 - value if movement.piece.color == RED else -1 * (value2 - value)
+    # if win = infinite value
+    if movement.piece.color == RED:
+        if simulated_board.get_white_left() == 0:
+            return float('inf')
+    else:
+        if simulated_board.get_red_left() == 0:
+            return float('inf')
+        
+    return value_after_movement - value_before_movement if movement.piece.color == RED else -1 * (value_after_movement - value_before_movement)
 
 
 def random_ia(board, color, list_size):

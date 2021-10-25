@@ -169,7 +169,7 @@ class Board:
             if i < 2:
                 return 0
             while i > 1:
-                if self.red_history[i][3] and self.red_history[i] == self.red_history[i - 2]:
+                if self.red_history[i][3] and self.red_history[i][2] == []:
                     counter += 1
                     i -= 1
                 else:
@@ -183,7 +183,7 @@ class Board:
             if i < 2:
                 return 0
             while i > 1:
-                if self.white_history[i][3] and self.white_history[i] == self.white_history[i - 2]:
+                if self.white_history[i][3] and self.white_history[i][2] == []:
                     counter += 1
                     i -= 1
                 else:
@@ -197,8 +197,6 @@ class Board:
         skipped_list = []
         for piece in skips:
             skipped_list.append([piece.row, piece.col])
-        # print("Lista Skippada: ")
-        # print(skipped_list)
 
         if piece.color == RED:
             self.red_history.append([origin, destination, skipped_list, piece.king])

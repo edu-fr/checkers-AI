@@ -1,6 +1,7 @@
 import sys
 import time
-
+import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 from checkers.constants import WIDTH, HEIGHT, SQUARE_SIZE, RED, WHITE, MINIMAX, RAND
 from checkers.game import Game
@@ -16,9 +17,6 @@ pygame.display.set_caption('Checkers')
 pygame.init()
 font = pygame.font.SysFont('Comic Sans MS', 40)
 
-red_cpu = True
-white_cpu = True
-
 
 def get_row_col_from_mouse(pos):
     x, y = pos
@@ -28,14 +26,25 @@ def get_row_col_from_mouse(pos):
 
 
 def main():
-    # 1: depth1 , 2: depth2, 3: CPU1_alg, 4: CPU2+_alg
+    red_cpu = True
+    white_cpu = True
 
+    # 1: depth1 , 2: depth2, 3: CPU1_alg, 4: CPU2+_alg    
     args = sys.argv[1:]
     args[0] = int(args[0])
     args[1] = int(args[1])
-    print("Depth1 :" + str(args[0]) + " Depth2: " + str(args[1]) + " Algo1: " + args[2] + " Alg2: " + args[3])
-    args[2] = MINIMAX if args[2] == "MINIMAX" else RAND
-    args[3] = MINIMAX if args[3] == "MINIMAX" else RAND
+    
+    if(len(args) >= 3):
+        if args[2] is not None:
+            args[2] = MINIMAX if args[2] == "MINIMAX" else RAND
+        if(len(args) >= 4):
+            if args[2] is not None and args[3] is not None:
+                args[3] = MINIMAX if args[3] == "MINIMAX" else RAND
+        else:
+            red_cpu = False
+    else:
+        white_cpu = False
+        red_cpu = False
 
     start = time.time()
     run = True
@@ -51,6 +60,17 @@ def main():
             run = False
             continue
 
+        if game.turn == RED:
+            if not check_if_possible_moves(game.board, RED):
+                winner = WHITE
+            else:
+                if red_cpu:
+                    value, movement = ai_playing(game.board, args[1], RED, args[3])
+                    if movement is not None and movement.piece is not None \
+                            and movement.move[0] is not None and movement.move[1] is not None:
+                        game.auto_move(movement)
+
+
         if game.turn == WHITE:
             if not check_if_possible_moves(game.board, WHITE):
                 winner = RED
@@ -62,15 +82,6 @@ def main():
                             and movement.move[0] is not None and movement.move[1] is not None:  # double checking
                         game.auto_move(movement)
 
-        if game.turn == RED:
-            if not check_if_possible_moves(game.board, RED):
-                winner = WHITE
-            else:
-                if red_cpu:
-                    value, movement = ai_playing(game.board, args[1], RED, args[3])
-                    if movement is not None and movement.piece is not None \
-                            and movement.move[0] is not None and movement.move[1] is not None:
-                        game.auto_move(movement)
 
         if game.winner() is not None:  # standard win
             print("Red venceu por capturar todas as peças!" if game.winner() == (
@@ -90,11 +101,7 @@ def main():
                     game.select(row, col)
 
         game.update()
-        # You can use `render` and then blit the text surface ...
-    #game.board.print_history()
     pygame.quit()
     end = time.time()
-    print("TEMPO: " + str(end - start))
-
 
 main()
